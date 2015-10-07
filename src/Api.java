@@ -24,6 +24,18 @@ public class Api {
 		return (sb.toString());
 	}
 	
+	public static int getMoveState(String gameID, String playerName) throws Exception {
+		return Integer.parseInt(Api.fetch("/check/" + gameID + "/" + playerName));
+	}
+	
+	public static String getStatesMessage(String gameID) throws Exception {
+		return Api.fetch("/statemsg/" + gameID);
+	}
+	
+	public static int getStateId(String gameID) throws Exception {
+		return Integer.parseInt(Api.fetch("/state/" + gameID));
+	}
+	
 	public static String move(String gameID, int fieldID, String playerName) throws Exception {
 		return Api.fetch("/move/" + gameID + "/" + playerName + "/" + fieldID);
 	}

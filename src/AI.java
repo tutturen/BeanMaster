@@ -1,17 +1,17 @@
 
 public class AI {
-	private static String PLAYER_NAME = "Super-Random-AI";
+	private static String PLAYER_NAME = "NOOB-AI";
 	private static int p1Score = 0;
 	private static int p2Score = 0;
 	
 	public static void main(String[] args) throws Exception {
 		printOpenGames();
 		
-		/*String gameID = Api.createGame(name);
+		/*String gameID = Api.createGame(PLAYER_NAME);
 		if (!gameID.equals("0")) {
 			play(gameID, 0);
 		}*/
-		String gameID = "37";
+		String gameID = "74";
 		if (Api.joinGame(gameID, PLAYER_NAME)) {
 			play(gameID, 6);
 		}
@@ -25,9 +25,6 @@ public class AI {
 
 	static void play(String gameID, int offset) throws Exception {
 		System.out.println("Playing game: " + gameID);
-		String checkURL = "/check/" + gameID + "/" + PLAYER_NAME;
-		String statesMsgURL = "/statemsg/" + gameID;
-		String stateIdURL = "/state/" + gameID;
 		int[] board = { 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 }; // position 1-12
 		int start, end;
 		if (offset == 0) {
@@ -39,9 +36,9 @@ public class AI {
 		}
 
 		while (true) {
-			Thread.sleep(1000);
-			int moveState = Integer.parseInt(Api.fetch(checkURL));
-			int stateID = Integer.parseInt(Api.fetch(stateIdURL));
+			Thread.sleep(2000);
+			int moveState = Api.getMoveState(gameID, PLAYER_NAME);
+			int stateID = Api.getStateId(gameID);
 			System.out.println("moveState:" + moveState);
 			System.out.println("stateId:" + stateID);
 
@@ -55,11 +52,9 @@ public class AI {
 				}
 
 				/*
-				 * Programm an dieser Stelle abändern, damit es nicht einen zufälligen Move macht, wenn ihr dran seid Zum Beispiel durch Aufruf einer Methode,
-				 * die ihr (bitte in mindestens einer extra Klasse) geschrieben habt
+				 * HERE GOES THE AI CODE
+				 * 
 				 */
-
-				// calculate fieldID
 				int selectField;
 				System.out.println("Finde Zahl: ");
 				do {
@@ -75,12 +70,11 @@ public class AI {
 				Api.move(gameID, selectField + 1, PLAYER_NAME);
 			} else if ((moveState == -2) || (stateID == 2)) {
 				System.out.println("GAME Finished");
-				checkURL = "/statemsg/" + gameID;
-				System.out.println(Api.fetch(checkURL));
+				System.out.println(Api.getStatesMessage(gameID));
 				return;
 			} else {
 				System.out.println("- " + moveState + "\t\t" +
-				Api.fetch(statesMsgURL));
+				Api.getStatesMessage(gameID));
 			}
 
 		}
