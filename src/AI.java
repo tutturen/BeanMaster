@@ -1,19 +1,25 @@
+import java.util.Scanner;
+
 
 public class AI {
-	private static String PLAYER_NAME = "NOOB-AI";
+	private static String PLAYER_NAME = "Curlo-AI";
 	private static int p1Score = 0;
 	private static int p2Score = 0;
 	
 	public static void main(String[] args) throws Exception {
 		printOpenGames();
-		
-		/*String gameID = Api.createGame(PLAYER_NAME);
-		if (!gameID.equals("0")) {
-			play(gameID, 0);
-		}*/
-		String gameID = "74";
-		if (Api.joinGame(gameID, PLAYER_NAME)) {
-			play(gameID, 6);
+		String[] openGames = Api.getOpenGames();
+		if (openGames[0].length() > 0) {
+			System.out.println("GAME-ID: " + openGames[0]);
+			boolean game = Api.joinGame(openGames[0], PLAYER_NAME);
+			if (game) {
+				play(openGames[0], 6);
+			}
+		} else {
+			String gameID = Api.createGame(PLAYER_NAME);
+			if (!gameID.equals("0")) {
+				play(gameID, 0);
+			}
 		}
 	}
 
@@ -36,7 +42,7 @@ public class AI {
 		}
 
 		while (true) {
-			Thread.sleep(2000);
+			Thread.sleep(4000);
 			int moveState = Api.getMoveState(gameID, PLAYER_NAME);
 			int stateID = Api.getStateId(gameID);
 			System.out.println("moveState:" + moveState);
@@ -46,28 +52,25 @@ public class AI {
 				if (moveState != -1) {
 					int selectedField = moveState - 1;
 					board = updateBoard(board, selectedField);
-					System.out.println("Opponent chose: " + moveState +
-					" /\t" + p1Score + " - " + p2Score);
-					System.out.println(printBoard(board) + "\n");
+					System.out.println("Opponent chose: " + moveState);
+					printScore();
+					printBoard(board);
 				}
 
 				/*
 				 * HERE GOES THE AI CODE
 				 * 
 				 */
-				int selectField;
-				System.out.println("Finde Zahl: ");
-				do {
-					selectField = (int) (Math.random() * 6) + offset;
-					System.out.println("\t-> " + selectField );
-				} while (board[selectField] == 0);
+				int selectedField = Brain.getMove(board, offset, p1Score, p2Score);
+				/*
+				 * AND THE AI CODE IS DONE
+				 */
+				Api.move(gameID, selectedField + 1, PLAYER_NAME);
+				board = updateBoard(board, selectedField);
+				System.out.println("Choose field: " + (selectedField + 1));
+				printScore();
+				printBoard(board);
 
-				board = updateBoard(board, selectField);
-				System.out.println("Choose field: " + (selectField + 1) +
-				" /\t" + p1Score + " - " + p2Score);
-				System.out.println(printBoard(board) + "\n\n");
-
-				Api.move(gameID, selectField + 1, PLAYER_NAME);
 			} else if ((moveState == -2) || (stateID == 2)) {
 				System.out.println("GAME Finished");
 				System.out.println(Api.getStatesMessage(gameID));
@@ -79,8 +82,12 @@ public class AI {
 
 		}
 	}
+	
+	static void printScore() {
+		System.out.println("Game score: " + p1Score + " - " + p2Score);
+	}
 
-	static String printBoard(int[] board) {
+	static void printBoard(int[] board) {
 		String s = "";
 		for (int i = 11; i >= 6; i--) {
 			if (i != 6) {
@@ -99,7 +106,7 @@ public class AI {
 			}
 		}
 
-		return s;
+		System.out.println(s);
 	}
 
 	static int[] updateBoard(int[] board, int field) {
