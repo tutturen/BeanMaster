@@ -4,15 +4,29 @@ import java.util.Arrays;
 public class Brain {
 	
 	public static int getMove(int[] board, int offset, int p1Score, int p2Score) {
-		System.out.println("BRAIN: " + Arrays.toString(board));
-		System.out.println("BRAN: offset=" + offset);
-		for (int i = 0; i < board.length / 2; i++) {
-			if (board[i+offset] != 0) {
-				System.out.println("Brain returning " + (i + offset));
-				return i + offset;
+		// Make the move with be best heuristic (1 level deep)
+		GameState state = new GameState(board, p1Score, p2Score);
+		
+		int bestIndex = 0;
+		int bestValue = 0;
+		for (int i = offset; i < 6 + offset; i++) {
+			
+			if (board[i] == 0) {
+				continue;
 			}
+			
+			GameState nextState = getNextState(state, i);
+			int heuristic = getHeuristic(nextState, offset);
+			System.out.println("H=" + heuristic);
+			if (heuristic > bestValue) {
+				bestIndex = i;
+				bestValue = heuristic;
+			}
+			
 		}
-		return offset;
+		System.out.println("Brain returning " + bestIndex + " with h=" + bestValue);
+		return bestIndex;
+
 	}
 	
 	private static int getHeuristic(GameState state, int offset) {
@@ -22,9 +36,9 @@ public class Brain {
 			sum += state.board[i];
 		}
 		if (offset == 6) {
-			return state.p2Score - state.p1Score + sum;
+			return state.p2Score - state.p1Score + sum / 2;
 		}
-		return state.p1Score - state.p2Score + sum;
+		return state.p1Score - state.p2Score + sum / 2;
 	}
 	
 	private static GameState getNextState(GameState state, int field) {
