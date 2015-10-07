@@ -29,6 +29,26 @@ public class Brain {
 
 	}
 	
+	private static int min(int[] arr) {
+		int res = arr[0];
+		for (int i = 1; i < arr.length; i++) {
+			if (arr[i] < res) {
+				res = arr[i];
+			}
+		}
+		return res;
+	}
+	
+	private static int max(int[] arr) {
+		int res = arr[0];
+		for (int i = 1; i < arr.length; i++) {
+			if (arr[i] > res) {
+				res = arr[i];
+			}
+		}
+		return res;
+	}
+	
 	private static int getHeuristic(GameState state, int offset) {
 		// Just a dumb one, to begin with
 		int sum = 0;
@@ -85,5 +105,6 @@ public class Brain {
 		System.out.println(Arrays.toString(newGS.board));
 		System.out.println("" + Brain.getHeuristic(newGS, 6));
 		System.out.println("" + Brain.getHeuristic(newGS, 0));
+		System.out.println(min(new int[]{1,3,40,3,2}));
 	}
 }
