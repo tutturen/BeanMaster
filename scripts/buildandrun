@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ ! -d "../out" ]; then
+	mkdir "../out"
+fi
+
+if [ -f "../out/BeanMaster.jar" ]; then
+	cp ../out/BeanMaster.jar ../out/OldBeanMaster.jar
+fi
+
+javac -d ../out -cp ../src ../src/AI.java
+cd ../out
+jar cfe BeanMaster.jar AI *.class
+
+cd ../scripts
+nodejs ./play.js
