@@ -9,7 +9,7 @@ public class Brain {
 		GameState state = new GameState(board, p1Score, p2Score);
 		
 		int bestIndex = -100000;
-		int bestValue = 0;
+		int bestValue = -100000;
 		for (int i = offset; i < 6 + offset; i++) {
 			
 			if (board[i] == 0) {
