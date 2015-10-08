@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -7,7 +8,7 @@ public class Brain {
 		// Make the move with be best heuristic (1 level deep)
 		GameState state = new GameState(board, p1Score, p2Score);
 		
-		int bestIndex = 0;
+		int bestIndex = -100000;
 		int bestValue = 0;
 		for (int i = offset; i < 6 + offset; i++) {
 			
@@ -27,6 +28,17 @@ public class Brain {
 		System.out.println("Brain returning " + bestIndex + " with h=" + bestValue);
 		return bestIndex;
 
+	}
+	
+	private static ArrayList<GameState> expandState(GameState state, int offset) {
+		ArrayList<GameState> list = new ArrayList<GameState>();
+		for (int i = offset; i < 6 + offset; i++) {
+			if (state.board[i] == 0) {
+				continue;
+			}
+			list.add(getNextState(state, i));
+		}
+		return list;
 	}
 	
 	private static int min(int[] arr) {
@@ -96,8 +108,8 @@ public class Brain {
 	public static void main(String[] args) {
 		GameState gs = new GameState();
 		gs.board = new int[]{ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 };
-		gs.p1Score = 1;
-		gs.p2Score = 1;
+		gs.p1Score = 0;
+		gs.p2Score = 0;
 		GameState newGS = Brain.getNextState(gs, 1);
 		System.out.println(Arrays.toString(gs.board));
 		System.out.println("" + Brain.getHeuristic(gs, 6));
@@ -106,5 +118,7 @@ public class Brain {
 		System.out.println("" + Brain.getHeuristic(newGS, 6));
 		System.out.println("" + Brain.getHeuristic(newGS, 0));
 		System.out.println(min(new int[]{1,3,40,3,2}));
+		ArrayList<GameState> states = expandState(gs, 6);
+		System.out.println(states);
 	}
 }

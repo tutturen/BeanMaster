@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 
 public class GameState {
 	
@@ -13,5 +15,10 @@ public class GameState {
 
 	public int[] board;
 	public int p1Score, p2Score;
+	
+	@Override
+	public String toString() {
+		return "[GameState: board=" + Arrays.toString(board) + ", p1=" + p1Score + ", p2=" + p2Score + "]";
+	}
 	
 }
