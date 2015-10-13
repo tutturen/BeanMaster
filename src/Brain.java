@@ -2,103 +2,107 @@ import java.util.ArrayList;
 
 public class Brain {
 	
+	private final static int DEPTH = 15;
+	
 	public static int getMove(int[] board, int offset, int p1Score, int p2Score) {
 		// Make the move with be best heuristic (1 level deep)
 		GameState state = new GameState(board, p1Score, p2Score);
-		final int DEPTH = 13;
-		GameState bottomState = minMax(state, DEPTH, offset);
-		System.out.println("SCORE: " + bottomState.score);
+		GameState bottomState = minMax(state, DEPTH, offset);		
+
+		GameState currentState = bottomState;
 		
-		int position = -2;
-		while (true) {
-			if (bottomState.parent == null) {
-				break;
-			}
-			bottomState = bottomState.parent;
-			if (bottomState.position == -1) {
-				break;
-			}
-			position = bottomState.position;
+		while(currentState.parent.position != -1) {
+			currentState = currentState.parent;
 		}
-		if (position == -2) {
-			position = getBestGreedyMove(state, offset);
-		}
-		System.out.println("Brain returning " + position);
-		return position;
+		
+		System.out.println("New brain h = " + bottomState.score);
+		return currentState.position;
 
 	}
 	
-	private static int getBestGreedyMove(GameState state, int offset) {
-		int h = Integer.MIN_VALUE;
-		GameState chosenState = null;
-		for (GameState s : expandState(state, offset)) {
-			int heur = getHeuristic(state, offset);
-			if (heur > h) {
-				chosenState = s;
-				h = heur;
-			}
-		}
-		return chosenState.position;
-	}
-	
-	
 	private static GameState minMax(GameState state, int depth, int offset) {
-		return maxMove(state, depth, offset);
+		GameState dummyAlpha = new GameState(state.board, 0, 0);
+		GameState dummyBeta = new GameState(state.board, 0, 0);
+		dummyAlpha.score = Integer.MIN_VALUE;
+		dummyBeta.score = Integer.MAX_VALUE;
+		
+		if (offset == 6) {
+			return minMove(state, depth, offset, dummyAlpha, dummyBeta);
+		} else {
+			return maxMove(state, depth, offset, dummyAlpha, dummyBeta);
+		}
 	}
 		 
-	private static GameState maxMove(GameState state, int depth, int offset) {
+	private static GameState maxMove(GameState state, int depth, int offset, GameState alpha, GameState beta) {
 	  if (depth == 0) {
-		  state.score = getHeuristic(state, offset);
+		  state.score = getHeuristic(state, depth);
 		  return state;
 	  }
 	  else {
-		  GameState bestMove = null;
 		  ArrayList<GameState> moves = expandState(state, offset);
-		  for (GameState move : moves) {
-			  move = minMove(move, depth - 1, offset);
-			  if (move == null) {
-				  continue;
-			  }
-			  if (bestMove == null || move.score > bestMove.score) {
+		  if (moves.size() == 0) {
+			  state.score = getHeuristic(state, depth);
+			  return state;
+		  }
+		  GameState bestMove = minMove(moves.get(0), depth - 1, (offset + 6) % 12, alpha, beta);
+		  if (bestMove.score > alpha.score) {
+			  alpha = bestMove;
+		  }
+		  if (beta.score <= alpha.score) {
+			  return beta;
+		  }
+		  for (int i = 1; i < moves.size(); i++) {
+			  GameState move = minMove(moves.get(i), depth - 1, (offset + 6) % 12, alpha, beta);
+			  if (move.score > bestMove.score) {
 				  bestMove = move;
-			}
+			  }
+			  if (bestMove.score > alpha.score) {
+				  alpha = bestMove;
+			  }
+			  if (beta.score <= alpha.score) {
+				  return beta;
+			  }
+		
 	    }
-		if (bestMove == null) {
-			state.score = getHeuristic(state, offset);
-			return state;
-		}
 	    return bestMove;
 	  }
 	}
 		 
-	private static GameState minMove(GameState state, int depth, int offset) {
-		  if (depth == 0) {
-			  state.score = getHeuristic(state, offset);
+	private static GameState minMove(GameState state, int depth, int offset, GameState alpha, GameState beta) {
+		if (depth == 0) {
+			  state.score = getHeuristic(state, depth);
 			  return state;
 		  }
 		  else {
-			  GameState bestMove = null;
 			  ArrayList<GameState> moves = expandState(state, offset);
-			  for (GameState move : moves) {
-				  move = maxMove(move, depth - 1, offset);
-				  if (move == null) {
-					  continue;
-				  }
-				  if (bestMove == null || move.score < bestMove.score) {
+			  if (moves.size() == 0) {
+				  state.score = getHeuristic(state, depth);
+				  return state;
+			  }
+			  
+			  GameState bestMove = maxMove(moves.get(0), depth - 1, (offset + 6) % 12, alpha, beta);
+			  if (bestMove.score < beta.score) {
+				  beta = bestMove;
+			  }
+			  if (alpha.score >= beta.score) {
+				  return alpha;
+			  }
+			  for (int i = 1; i < moves.size(); i++) {
+				  GameState move = maxMove(moves.get(i), depth - 1, (offset + 6) % 12, alpha, beta);
+				  if (move.score < bestMove.score) {
 					  bestMove = move;
-				}
+				  }
+				  if (bestMove.score < beta.score) {
+					  beta = bestMove;
+				  }
+				  if (alpha.score >= beta.score) {
+					  return alpha;
+				  }
+				  
 		    }
-			if (bestMove == null) {
-				state.score = getHeuristic(state, offset);
-				return state;
-			}
 		    return bestMove;
 		  }
 		}
-	
-
-	
-	
 	
 	private static ArrayList<GameState> expandState(GameState state, int offset) {
 		ArrayList<GameState> list = new ArrayList<GameState>();
@@ -111,33 +115,40 @@ public class Brain {
 		return list;
 	}
 	
-	private static int getHeuristic(GameState state, int offset) {
-		// Just a dumb one, to begin with
-		int sum = 0;
-		int freeSpots = 0;
-		for (int i = offset; i < 6 + offset; i++) {
-			if (state.board[i] == 0) {
-				freeSpots++;
-			}
-			sum += state.board[i];
-		}
+	private static int getHeuristic(GameState state, int depth) {
+		int p1Sum = 0;
+		int p2Sum = 0;
+		int p1FreeSpots = 0;
+		int p2FreeSpots = 0;
+		int h = 0;
 		
-		if (freeSpots < 1) {
-			return -10000;
+		for (int i = 0; i < 6; i++) {
+			p1Sum += state.board[i];
+			if (state.board[i] == 0) {
+				p1FreeSpots++;
+			}
+		}
+		for (int i = 6; i < 12; i++) {
+			p2Sum += state.board[i];
+			if (state.board[i] == 0) {
+				p2FreeSpots++;
+			}
 		}
 		
 		// If this is a end state
 		if (state.p2Score > 36) {
-			return (offset == 6) ? 10000 : -10000;
+			h = -10000;
 		} else if (state.p1Score > 36) {
-			return (offset == 6) ? -10000 : 10000;
+			h = 10000;
+		} else if (p1FreeSpots > 5) {
+			h = -10000;
+		} else if (p2FreeSpots > 5) {
+			h = 10000;
 		}
 		
-		
-		if (offset == 6) {
-			return state.p2Score - state.p1Score + sum / 4;
-		}
-		return state.p1Score - state.p2Score + sum / 4;
+		h += (state.p1Score + p1Sum / 2) - (state.p2Score + p2Sum / 2);
+		return h;
+
 	}
 	
 	private static GameState getNextState(GameState state, int field) {
@@ -172,9 +183,5 @@ public class Brain {
 		newState.parent = state;
 		return newState;
 	}
-	
-	public static void main(String[] args) {
-		GameState gs = new GameState(new int[]{ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 }, 0, 0);
-		//System.out.println(minMax(gs, 5, 6));
-	}
+
 }

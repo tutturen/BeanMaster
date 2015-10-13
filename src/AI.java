@@ -52,7 +52,7 @@ public class AI {
 		}
 
 		while (true) {
-			Thread.sleep(2000);
+			Thread.sleep(500);
 			int moveState = Api.getMoveState(gameID, PlayerName);
 			int stateID = Api.getStateId(gameID);
 			//System.out.println("moveState:" + moveState);

@@ -26,7 +26,6 @@ public class Api {
 	
 	public static int getMoveState(String gameID, String playerName) throws Exception {
 		int ret = Integer.parseInt(Api.fetch("/check/" + gameID + "/" + playerName));
-		System.out.println("" + ret);
 		return ret;
 	}
 	
