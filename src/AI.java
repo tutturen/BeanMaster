@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 
 public class AI {
 	private static String PLAYER_NAME = "Curlo-AI";
@@ -42,19 +40,19 @@ public class AI {
 		}
 
 		while (true) {
-			Thread.sleep(3000);
+			Thread.sleep(2000);
 			int moveState = Api.getMoveState(gameID, PLAYER_NAME);
 			int stateID = Api.getStateId(gameID);
-			System.out.println("moveState:" + moveState);
-			System.out.println("stateId:" + stateID);
+			//System.out.println("moveState:" + moveState);
+			//System.out.println("stateId:" + stateID);
 
 			if ((stateID != 2) && (((start <= moveState) && (moveState <= end)) || (moveState == -1))) {
 				if (moveState != -1) {
 					int selectedField = moveState - 1;
 					board = updateBoard(board, selectedField);
-					System.out.println("Opponent chose: " + moveState);
-					printScore();
-					printBoard(board);
+					//System.out.println("Opponent chose: " + moveState);
+					//printScore();
+					//printBoard(board);
 				}
 
 				/*
@@ -67,17 +65,17 @@ public class AI {
 				 */
 				Api.move(gameID, selectedField + 1, PLAYER_NAME);
 				board = updateBoard(board, selectedField);
-				System.out.println("Choose field: " + (selectedField + 1));
-				printScore();
-				printBoard(board);
+				//System.out.println("Choose field: " + (selectedField + 1));
+				//printScore();
+				//printBoard(board);
 
 			} else if ((moveState == -2) || (stateID == 2)) {
 				System.out.println("GAME Finished");
 				System.out.println(Api.getStatesMessage(gameID));
 				return;
 			} else {
-				System.out.println("- " + moveState + "\t\t" +
-				Api.getStatesMessage(gameID));
+				//System.out.println("- " + moveState + "\t\t" +
+				//Api.getStatesMessage(gameID));
 			}
 
 		}
