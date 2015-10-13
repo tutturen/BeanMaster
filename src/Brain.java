@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 
-
 public class Brain {
 	
 	public static int getMove(int[] board, int offset, int p1Score, int p2Score) {
@@ -113,6 +112,20 @@ public class Brain {
 	}
 	
 	private static int getHeuristic(GameState state, int offset) {
+		// Just a dumb one, to begin with
+		int sum = 0;
+		int freeSpots = 0;
+		for (int i = offset; i < 6 + offset; i++) {
+			if (state.board[i] == 0) {
+				freeSpots++;
+			}
+			sum += state.board[i];
+		}
+		
+		if (freeSpots < 1) {
+			return -10000;
+		}
+		
 		// If this is a end state
 		if (state.p2Score > 36) {
 			return (offset == 6) ? 10000 : -10000;
@@ -120,11 +133,7 @@ public class Brain {
 			return (offset == 6) ? -10000 : 10000;
 		}
 		
-		// Just a dumb one, to begin with
-		int sum = 0;
-		for (int i = offset; i < 6 + offset; i++) {
-			sum += state.board[i];
-		}
+		
 		if (offset == 6) {
 			return state.p2Score - state.p1Score + sum / 4;
 		}
