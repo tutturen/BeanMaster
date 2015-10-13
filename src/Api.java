@@ -25,7 +25,9 @@ public class Api {
 	}
 	
 	public static int getMoveState(String gameID, String playerName) throws Exception {
-		return Integer.parseInt(Api.fetch("/check/" + gameID + "/" + playerName));
+		int ret = Integer.parseInt(Api.fetch("/check/" + gameID + "/" + playerName));
+		System.out.println("" + ret);
+		return ret;
 	}
 	
 	public static String getStatesMessage(String gameID) throws Exception {
@@ -53,6 +55,22 @@ public class Api {
 	
 	public static String[] getOpenGames() throws Exception {
 		return Api.fetch("/opengames").split(";");
+	}
+
+	public static boolean canStartGame(String gameID, String playerName) throws Exception {
+		String status = Integer.toString(Api.getMoveState(gameID, playerName));
+		System.out.println(status);
+		if (status.equals(GAME_CAN_BE_STARTED) || status.equals(YOUR_TURN) || status.equals(NOT_YOUR_TURN)) {
+			System.out.println("Game ready: " + gameID);
+			return true;
+		} else if (status.equals(GAME_FINISHED)) {
+			System.out.println("Timeout. Game is finished.");
+			return false;
+		} else if (status.equals(MISSING_PLAYER_2)) {
+			System.out.println("Missing player 2.");
+		}
+		
+		return false;
 	}
 	
 	public static String createGame(String playerName) throws Exception {

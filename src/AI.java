@@ -1,22 +1,34 @@
 
 public class AI {
-	private static String PLAYER_NAME = "Curlo-AI";
+	private static String PlayerName = "Curlo-AI";
 	private static int p1Score = 0;
 	private static int p2Score = 0;
 	
 	public static void main(String[] args) throws Exception {
-		printOpenGames();
-		String[] openGames = Api.getOpenGames();
-		if (openGames[0].length() > 0) {
-			System.out.println("GAME-ID: " + openGames[0]);
-			boolean game = Api.joinGame(openGames[0], PLAYER_NAME);
-			if (game) {
-				play(openGames[0], 6);
+		if (args.length == 3) {
+			PlayerName = args[1];
+			boolean status = Api.canStartGame(args[0], PlayerName);
+			if (status) {
+				play(args[0], Integer.parseInt(args[2]));
+			} else {
+				System.out.println("Game not started.");
 			}
-		} else {
-			String gameID = Api.createGame(PLAYER_NAME);
-			if (!gameID.equals("0")) {
-				play(gameID, 0);
+		}
+
+		else {
+			printOpenGames();
+			String[] openGames = Api.getOpenGames();
+			if (openGames[0].length() > 0) {
+				System.out.println("GAME-ID: " + openGames[0]);
+				boolean game = Api.joinGame(openGames[0], PlayerName);
+				if (game) {
+					play(openGames[0], 6);
+				}
+			} else {
+				String gameID = Api.createGame(PlayerName);
+				if (!gameID.equals("0")) {
+					play(gameID, 0);
+				}
 			}
 		}
 	}
@@ -41,7 +53,7 @@ public class AI {
 
 		while (true) {
 			Thread.sleep(2000);
-			int moveState = Api.getMoveState(gameID, PLAYER_NAME);
+			int moveState = Api.getMoveState(gameID, PlayerName);
 			int stateID = Api.getStateId(gameID);
 			//System.out.println("moveState:" + moveState);
 			//System.out.println("stateId:" + stateID);
@@ -63,7 +75,7 @@ public class AI {
 				/*
 				 * AND THE AI CODE IS DONE
 				 */
-				Api.move(gameID, selectedField + 1, PLAYER_NAME);
+				Api.move(gameID, selectedField + 1, PlayerName);
 				board = updateBoard(board, selectedField);
 				//System.out.println("Choose field: " + (selectedField + 1));
 				//printScore();
