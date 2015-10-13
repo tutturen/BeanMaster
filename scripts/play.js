@@ -1,7 +1,6 @@
 var spawn = require('child_process').spawn;
 var request = require('request');
 var fs = require('fs');
-var path = require('path');
 
 var API_URL = 'http://drachten.informatik.uni-mannheim.de/api';
 var PLAYER_NAME = 'Larry';
@@ -11,7 +10,7 @@ var oldPath = '../out/OldBeanMaster.jar';
 var jarPath = '../out/BeanMaster.jar';
 
 function spawnJavaProcs(gameString) {
-	if (!path.existsSync(oldPath)) {
+	if (!fs.existsSync(oldPath)) {
 		oldPath = jarPath;
 	}
 
