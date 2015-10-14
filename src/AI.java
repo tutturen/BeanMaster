@@ -1,6 +1,6 @@
 
 public class AI {
-	private static String PlayerName = "Curlo-AI";
+	private static String PlayerName = "NichtSoEinsamerSpieler";
 	private static int p1Score = 0;
 	private static int p2Score = 0;
 	
@@ -13,9 +13,15 @@ public class AI {
 			} else {
 				System.out.println("Game not started.");
 			}
-		}
 
-		else {
+		} else if (args.length == 1 && args[0].charAt(0) == 'c') {
+			PlayerName = "EinsamerSpieler";
+			String gameID = Api.createGame(PlayerName);
+			if (!gameID.equals("0")) {
+				play(gameID, 0);
+			}
+			
+		} else {
 			printOpenGames();
 			String[] openGames = Api.getOpenGames();
 			if (openGames[0].length() > 0) {

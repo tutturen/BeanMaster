@@ -146,7 +146,7 @@ public class Brain {
 			h = 10000;
 		}
 		
-		h += (state.p1Score + p1Sum / 2) - (state.p2Score + p2Sum / 2);
+		h += (state.p1Score + p1Sum / 3) - (state.p2Score + p2Sum / 3);
 		return h;
 
 	}
