@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+import java.util.*;
+
 
 public class Brain {
 	
@@ -40,10 +41,19 @@ public class Brain {
 	  }
 	  else {
 		  ArrayList<GameState> moves = expandState(state, offset);
+
 		  if (moves.size() == 0) {
 			  state.score = getHeuristic(state, depth);
 			  return state;
 		  }
+
+		  Collections.sort(moves, new Comparator<GameState>() {
+			  @Override
+			  public int compare(GameState g1, GameState g2) {
+			  	  return -Integer.compare(g1.score, g2.score);
+			  }
+		  });
+
 		  GameState bestMove = minMove(moves.get(0), depth - 1, (offset + 6) % 12, alpha, beta);
 		  if (bestMove.score > alpha.score) {
 			  alpha = bestMove;
@@ -79,6 +89,13 @@ public class Brain {
 				  state.score = getHeuristic(state, depth);
 				  return state;
 			  }
+
+			  Collections.sort(moves, new Comparator<GameState>() {
+				@Override
+				public int compare(GameState g1, GameState g2) {
+					return Integer.compare(g1.score, g2.score);
+				}
+			  });
 			  
 			  GameState bestMove = maxMove(moves.get(0), depth - 1, (offset + 6) % 12, alpha, beta);
 			  if (bestMove.score < beta.score) {
@@ -180,6 +197,7 @@ public class Brain {
 				field = (field == 0) ? 11 : --field;
 			} while ((newState.board[field] == 2) || (newState.board[field] == 4) || (newState.board[field] == 6));
 		}
+		newState.score = getHeuristic(newState, 0);
 		newState.parent = state;
 		return newState;
 	}
