@@ -3,15 +3,36 @@ import java.util.*;
 
 public class Brain {
 	
-	private final static int DEPTH = 15;
+	private final static int TIME_LIMIT_MS = 2300;
+	private final static int DEPTH = 17;
+	private static long StartTime;
+
 	
 	public static int getMove(int[] board, int offset, int p1Score, int p2Score) {
+		StartTime = System.nanoTime();
+
 		// Make the move with be best heuristic (1 level deep)
 		GameState state = new GameState(board, p1Score, p2Score);
-		GameState bottomState = minMax(state, DEPTH, offset);		
-
-		GameState currentState = bottomState;
 		
+		GameState bottomState = state;
+		GameState currentState = state;
+		
+		int counter = 13;
+		while(true) {
+			if (counter > 10000) {
+				break;
+			}
+			try {
+				bottomState = minMax(state, counter, offset);
+				currentState = bottomState;	
+			} catch (Exception e) {
+				break;
+			}
+			counter++;
+		}
+
+		System.out.println("Success on depth: " + (counter-1));
+
 		while(currentState.parent.position != -1) {
 			currentState = currentState.parent;
 		}
@@ -21,7 +42,7 @@ public class Brain {
 
 	}
 	
-	private static GameState minMax(GameState state, int depth, int offset) {
+	private static GameState minMax(GameState state, int depth, int offset) throws Exception{
 		GameState dummyAlpha = new GameState(state.board, 0, 0);
 		GameState dummyBeta = new GameState(state.board, 0, 0);
 		dummyAlpha.score = Integer.MIN_VALUE;
@@ -34,7 +55,11 @@ public class Brain {
 		}
 	}
 		 
-	private static GameState maxMove(GameState state, int depth, int offset, GameState alpha, GameState beta) {
+	private static GameState maxMove(GameState state, int depth, int offset, GameState alpha, GameState beta) throws Exception {
+	  
+	  if((System.nanoTime() - StartTime)/1000000 > TIME_LIMIT_MS) {
+	  	  throw new Exception();
+	  }
 	  if (depth == 0) {
 		  state.score = getHeuristic(state, depth);
 		  return state;
@@ -78,7 +103,10 @@ public class Brain {
 	  }
 	}
 		 
-	private static GameState minMove(GameState state, int depth, int offset, GameState alpha, GameState beta) {
+	private static GameState minMove(GameState state, int depth, int offset, GameState alpha, GameState beta) throws Exception {
+	  	if((System.nanoTime() - StartTime)/1000000 > TIME_LIMIT_MS) {
+	  		throw new Exception();
+	  	}
 		if (depth == 0) {
 			  state.score = getHeuristic(state, depth);
 			  return state;
@@ -155,12 +183,14 @@ public class Brain {
 		// If this is a end state
 		if (state.p2Score > 36) {
 			h = -10000;
+			if(p2FreeSpots == 6) {
+				h -= 100;
+			}
 		} else if (state.p1Score > 36) {
 			h = 10000;
-		} else if (p1FreeSpots > 5) {
-			h = -10000;
-		} else if (p2FreeSpots > 5) {
-			h = 10000;
+			if(p1FreeSpots == 6) {
+				h += 100;
+			}
 		}
 		
 		h += (state.p1Score + p1Sum / 3) - (state.p2Score + p2Sum / 3);
@@ -197,6 +227,30 @@ public class Brain {
 				field = (field == 0) ? 11 : --field;
 			} while ((newState.board[field] == 2) || (newState.board[field] == 4) || (newState.board[field] == 6));
 		}
+
+		int opponentBeans = 0;
+		int ourBeans = 0;
+		if (field < 6) {
+			for(int i = 0; i < 6; i++) {
+				opponentBeans += newState.board[i+6];
+				ourBeans += newState.board[i];
+			}
+		} else {
+			for(int i = 0; i < 6; i++) {
+				opponentBeans += newState.board[i];
+				ourBeans += newState.board[i+6];
+			}
+		}
+
+		if(opponentBeans == 0) {
+			newState.board = new int[]{0,0,0,0,0,0,0,0,0,0,0,0};
+			if(field < 6) {
+				newState.p1Score += ourBeans;
+			} else {
+				newState.p2Score += ourBeans;
+			}
+		}
+
 		newState.score = getHeuristic(newState, 0);
 		newState.parent = state;
 		return newState;
