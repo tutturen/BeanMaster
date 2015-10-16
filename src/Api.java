@@ -66,7 +66,7 @@ public class Api {
 			System.out.println("Timeout. Game is finished.");
 			return false;
 		} else if (status.equals(MISSING_PLAYER_2)) {
-			System.out.println("Missing player 2.");
+			//System.out.println("Missing player 2.");
 		}
 		
 		return false;
@@ -75,7 +75,7 @@ public class Api {
 	public static String createGame(String playerName) throws Exception {
 		String gameID = Api.fetch("/creategame/" + playerName);
 		while (true) {
-			Thread.sleep(3000);
+			Thread.sleep(50);
 			String state = Api.fetch("/check/" + gameID + "/" + playerName);
 			if (state.equals(GAME_CAN_BE_STARTED) || state.equals(YOUR_TURN)) {
 				System.out.println("Game ready: " + gameID);
@@ -84,7 +84,7 @@ public class Api {
 				System.out.println("Timeout. Game is finished.");
 				return "0";
 			} else if (state.equals(MISSING_PLAYER_2)) {
-				System.out.println("Missing player 2.");
+				//System.out.println("Missing player 2.");
 			}
 		}
 	}
