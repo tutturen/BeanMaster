@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Brain {
 	
-	private final static int TIME_LIMIT_MS = 2300;
+	private final static int TIME_LIMIT_MS = 2600;
 	private final static int DEPTH = 17;
 	private static long StartTime;
 
@@ -193,7 +193,7 @@ public class Brain {
 			}
 		}
 		
-		h += (state.p1Score + p1Sum / 3) - (state.p2Score + p2Sum / 3);
+		h += (state.p1Score + p1Sum / 4) - (state.p2Score + p2Sum / 4);
 		return h;
 
 	}
