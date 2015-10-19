@@ -4,20 +4,17 @@ import java.util.*;
 public class Brain {
 	
 	private final static int TIME_LIMIT_MS = 2600;
-	private final static int DEPTH = 17;
 	private static long StartTime;
 
 	
 	public static int getMove(int[] board, int offset, int p1Score, int p2Score) {
 		StartTime = System.nanoTime();
-
-		// Make the move with be best heuristic (1 level deep)
 		GameState state = new GameState(board, p1Score, p2Score);
 		
 		GameState bottomState = state;
 		GameState currentState = state;
 		
-		int counter = 13;
+		int counter = 14;
 		while(true) {
 			if (counter > 10000) {
 				break;
@@ -31,13 +28,11 @@ public class Brain {
 			counter++;
 		}
 
-		System.out.println("Success on depth: " + (counter-1));
-
 		while(currentState.parent.position != -1) {
 			currentState = currentState.parent;
 		}
 		
-		System.out.println("New brain h = " + bottomState.score);
+		System.out.println("heur = " + bottomState.score + ", depth = " + (counter-1));
 		return currentState.position;
 
 	}
@@ -61,14 +56,12 @@ public class Brain {
 	  	  throw new Exception();
 	  }
 	  if (depth == 0) {
-		  state.score = getHeuristic(state, depth);
 		  return state;
 	  }
 	  else {
 		  ArrayList<GameState> moves = expandState(state, offset);
 
 		  if (moves.size() == 0) {
-			  state.score = getHeuristic(state, depth);
 			  return state;
 		  }
 
@@ -104,17 +97,15 @@ public class Brain {
 	}
 		 
 	private static GameState minMove(GameState state, int depth, int offset, GameState alpha, GameState beta) throws Exception {
-	  	if((System.nanoTime() - StartTime)/1000000 > TIME_LIMIT_MS) {
+	  	if ((System.nanoTime() - StartTime)/1000000 > TIME_LIMIT_MS) {
 	  		throw new Exception();
 	  	}
 		if (depth == 0) {
-			  state.score = getHeuristic(state, depth);
 			  return state;
 		  }
 		  else {
 			  ArrayList<GameState> moves = expandState(state, offset);
 			  if (moves.size() == 0) {
-				  state.score = getHeuristic(state, depth);
 				  return state;
 			  }
 
@@ -172,13 +163,17 @@ public class Brain {
 			if (state.board[i] == 0) {
 				p1FreeSpots++;
 			}
+			p2Sum += state.board[i+6];
+			if (state.board[i+6] == 0) {
+				p2FreeSpots++;
+			}
 		}
-		for (int i = 6; i < 12; i++) {
+		/*for (int i = 6; i < 12; i++) {
 			p2Sum += state.board[i];
 			if (state.board[i] == 0) {
 				p2FreeSpots++;
 			}
-		}
+		}*/
 		
 		// If this is a end state
 		if (state.p2Score > 36) {
@@ -193,7 +188,8 @@ public class Brain {
 			}
 		}
 		
-		h += (state.p1Score + p1Sum / 4) - (state.p2Score + p2Sum / 4);
+		h += state.p1Score - state.p2Score + (p1Sum - p2Sum) / 4;
+		//h += (state.p1Score + p1Sum / 4) - (state.p2Score + p2Sum / 4);
 		return h;
 
 	}
@@ -201,8 +197,8 @@ public class Brain {
 	private static GameState getNextState(GameState state, int field) {
 		GameState newState = new GameState();
 		newState.board = new int[12];
-		newState.p1Score = state.p1Score + 0;
-		newState.p2Score = state.p2Score + 0;
+		newState.p1Score = state.p1Score;
+		newState.p2Score = state.p2Score;
 		newState.position = field;
 		System.arraycopy(state.board, 0, newState.board, 0, state.board.length);
 		
